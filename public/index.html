@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Immobilienrechner</title>
+    <meta name="description" content="Rechnet sich der Immobilienkauf? Vergleicht Kaufen mit einer Alternativanlage – für Vermietung und Eigennutzung, mit Finanzierung, Steuern und Sensitivitätsanalyse." />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M4 15 16 5l12 10v13H4z' fill='%232e6b4f'/%3E%3Cpath d='M12 28v-8h8v8' fill='%23f3f4f0'/%3E%3C/svg%3E" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,300..800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="top">
+      <div class="brand">
+        <h1>Immobilienrechner</h1>
+        <p>Rechnet sich der Kauf – oder bringt dasselbe Geld woanders angelegt mehr?</p>
+      </div>
+      <div class="controls">
+        <div class="segmented" role="group" aria-label="Nutzung">
+          <button type="button" data-mode="vermietung" aria-pressed="true">Vermieten</button>
+          <button type="button" data-mode="eigennutzung" aria-pressed="false">Selbst wohnen</button>
+        </div>
+        <label class="preset">
+          <span>Beispiel</span>
+          <select id="preset"></select>
+        </label>
+        <button type="button" class="ghost" id="reset">Zurücksetzen</button>
+        <button type="button" class="ghost" id="share">Link kopieren</button>
+      </div>
+    </header>
+
+    <main class="layout">
+      <aside class="inputs" id="inputs" aria-label="Annahmen"></aside>
+
+      <div class="results">
+        <section class="verdict" id="verdict" aria-live="polite">
+          <h2 id="verdict-head"></h2>
+          <p id="verdict-line"></p>
+          <div class="scale" id="scale"></div>
+          <p class="scale-note">Vermögen nach <span id="horizon-label"></span> Jahren nach Verkauf, Restschuld und Steuern.</p>
+          <dl class="facts" id="facts"></dl>
+        </section>
+
+        <section class="block">
+          <h2>Die wichtigsten Zahlen</h2>
+          <dl class="kvs" id="monthly"></dl>
+          <ul class="warnings" id="warnings" hidden></ul>
+        </section>
+
+        <section class="block">
+          <h2>Vermögen im Zeitverlauf</h2>
+          <p class="lede">Was du hättest, wenn du im jeweiligen Jahr verkaufst – gegenüber der Alternativanlage mit denselben Einzahlungen.<span id="kink-note"></span></p>
+          <div class="legend"><span><i class="key kauf"></i>Kaufen</span><span><i class="key alt"></i>Alternativanlage</span></div>
+          <div class="chart" id="chart-wealth"></div>
+        </section>
+
+        <section class="block two">
+          <div>
+            <h2>Marktwert und Restschuld</h2>
+            <div class="legend"><span><i class="key kauf"></i>Marktwert</span><span><i class="key debt"></i>Restschuld</span></div>
+            <div class="chart" id="chart-debt"></div>
+          </div>
+          <div>
+            <h2 id="cashflow-title">Cashflow pro Jahr</h2>
+            <div class="legend"><span><i class="key kauf"></i>Überschuss</span><span><i class="key neg"></i>Zuschuss aus eigener Tasche</span></div>
+            <div class="chart" id="chart-cashflow"></div>
+          </div>
+        </section>
+
+        <section class="block">
+          <h2>Welche Annahme zählt am meisten?</h2>
+          <p class="lede">Vermögensvorsprung von Kaufen, wenn eine einzelne Annahme danebenliegt. Lange Balken heißen: Hier genau hinschauen.</p>
+          <div class="legend"><span><i class="key kauf"></i>Kaufen vorn</span><span><i class="key alt"></i>Alternative vorn</span></div>
+          <p class="t-basis" id="t-basis"></p>
+          <div id="chart-tornado"></div>
+        </section>
+
+        <section class="block">
+          <details class="table-wrap">
+            <summary><h2>Jahr für Jahr</h2></summary>
+            <div class="table-scroll"><table id="table"></table></div>
+            <button type="button" class="ghost" id="csv">Als CSV herunterladen</button>
+          </details>
+        </section>
+
+        <section class="block assumptions">
+          <details>
+            <summary><h2>Was das Modell vereinfacht</h2></summary>
+            <ul>
+              <li>Beide Szenarien bekommen exakt dasselbe Geld: Das Eigenkapital und jeder monatliche Zuschuss für die Immobilie werden im Vergleich in die Alternativanlage gesteckt. Überschüsse der Immobilie werden ebenfalls dort angelegt.</li>
+              <li>Am Ende wird ein Verkauf unterstellt. Der Marktwert startet beim Kaufpreis; die Renovierung erhöht ihn nicht automatisch.</li>
+              <li>Steuern bei Vermietung werden mit einem festen Grenzsteuersatz gerechnet. Renovierungskosten werden komplett abgeschrieben, Instandhaltung sofort abgesetzt. In der Praxis ist Rücklagen-Geld einer WEG erst absetzbar, wenn es ausgegeben wird.</li>
+              <li>Verkauf innerhalb von 10 Jahren bei Vermietung: Der Gewinn wird mit dem Grenzsteuersatz versteuert. Bei Eigennutzung gilt der Verkauf als steuerfrei.</li>
+              <li>Die Alternativanlage wächst gleichmäßig. Echte Aktienmärkte schwanken stark, Immobilienwerte auch, nur sieht man es seltener.</li>
+              <li>Nicht berücksichtigt: Sparerpauschbetrag, Inflation (alle Werte sind nominal), Grundsteuer und umlagefähige Nebenkosten (zahlt bei Vermietung der Mieter, bei Eigennutzung fallen sie auch als Mieter an), Zeit- und Nervenaufwand für Vermietung, Klumpenrisiko einer einzelnen Immobilie.</li>
+              <li>Keine Steuer- oder Finanzberatung. Für eine Kaufentscheidung die Zahlen mit Bank und Steuerberatung gegenprüfen.</li>
+            </ul>
+          </details>
+        </section>
+      </div>
+    </main>
+
+    <button type="button" class="sticky" id="sticky" aria-label="Zum Ergebnis springen"></button>
+
+    <noscript><p class="noscript">Der Rechner braucht JavaScript.</p></noscript>
+    <script type="module" src="./js/main.js"></script>
+  </body>
+</html>
